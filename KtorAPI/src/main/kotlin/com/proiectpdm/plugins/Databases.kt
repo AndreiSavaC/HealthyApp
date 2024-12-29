@@ -1,5 +1,6 @@
 package com.proiectpdm.plugins
 
+
 import com.proiectpdm.model.*
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -17,6 +18,7 @@ fun Application.configureDatabases() {
     val db=Database.connect(provideDataSource(jdbcUrl,driverClass))
 
     transaction(db){
+
 
         SchemaUtils.create(Doctors,Pacients,Appointments,Categories,Symptoms)
 

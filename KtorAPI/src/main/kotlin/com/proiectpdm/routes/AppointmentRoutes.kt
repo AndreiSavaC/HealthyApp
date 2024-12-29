@@ -16,7 +16,9 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
+
 import java.time.DayOfWeek
+
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -43,6 +45,7 @@ fun Routing.appointmentRoute(appointmentService: AppointmentService,pacientServi
                 return@post
             }
 
+
             val dayOfWeek = adjustedDate.dayOfWeek
             if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
                 call.respond(
@@ -60,6 +63,7 @@ fun Routing.appointmentRoute(appointmentService: AppointmentService,pacientServi
                 call.respond(HttpStatusCode.BadRequest, "Could not find doctor")
             }
             else if(!isAppointmentDateValid){
+
                 call.respond(HttpStatusCode.BadRequest, "Cannot create appointment in the past or incorect time\nEach slot should begin from 09:00 and end at 22 either from :00 or :30 for ${appointment.date} and ${appointment.time}")
 
             }
@@ -73,6 +77,7 @@ fun Routing.appointmentRoute(appointmentService: AppointmentService,pacientServi
                     } ?: call.respond(HttpStatusCode.BadRequest, "Error adding appointment")
                 }else{
 
+
                     val conflictingAppointment = existingAppointments.any { it.time == updatedAppointment.time }
                     if (conflictingAppointment) {
                         call.respond(
@@ -85,7 +90,6 @@ fun Routing.appointmentRoute(appointmentService: AppointmentService,pacientServi
                     appointmentService.addAppointment(updatedAppointment)?.let {
                         call.respond(HttpStatusCode.Created, it)
                     } ?: call.respond(HttpStatusCode.BadRequest, "Error adding appointment")
-
 
                 }
             }
@@ -126,6 +130,7 @@ fun Routing.appointmentRoute(appointmentService: AppointmentService,pacientServi
 
             call.respond(HttpStatusCode.OK, availableSlots.map { it.format(DateTimeFormatter.ofPattern("HH:mm")) })
         }
+
 
 
         get("/doctors/{doctorId}") {
@@ -194,6 +199,7 @@ fun isDateTimeValid(date:String,time:String): Boolean {
     val currentDate = LocalDateTime.now()
 
 
+
     if(!time.endsWith(":00") && !time.endsWith(":30")) {
         return false
     }
@@ -209,10 +215,10 @@ fun isDateTimeValid(date:String,time:String): Boolean {
             return false
         }
 
+
         if(parsedDate.hour < 9 || parsedDate.hour > 21){
             return false
         }
-
 
     }catch (e:Exception){
         println(e)
