@@ -12,4 +12,9 @@
     <color name="accentColor">#03DAC5</color>
     <color name="blue">#0000FF</color>
     <color name="mainRed">#dc0028</color>
+    <color name="gray_50">#F8F9FA</color>
+    <color name="blue_600">#1D4ED8</color>
+    <color name="gray_200">#E5E7EB</color>
+    <color name="gray_600">#4B5563</color>
+
 </resources>

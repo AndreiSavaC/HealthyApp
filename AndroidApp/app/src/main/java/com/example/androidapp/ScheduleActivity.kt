@@ -7,7 +7,9 @@ import android.widget.TextView
 import android.widget.Toast
 import android.view.Gravity
 import android.util.Log
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.example.androidapp.api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -26,7 +28,15 @@ class ScheduleActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.schedule_activity)
+        setContentView(R.layout.activity_schedule)
+
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        if (supportActionBar != null) {
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+        }
 
         weekRangeTextView = findViewById(R.id.txtWeekRange)
         weekCalendar = findViewById(R.id.weekCalendar)
@@ -52,6 +62,15 @@ class ScheduleActivity : AppCompatActivity() {
         btnNextWeek.setOnClickListener {
             weekStart.add(Calendar.WEEK_OF_YEAR, 1)
             updateWeekDisplay()
+        }
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -131,9 +150,9 @@ class ScheduleActivity : AppCompatActivity() {
 
     private fun updateWeekDays() {
         weekCalendar.removeAllViews()
-        val daysOfWeek = listOf("Lun.", "Mar.", "Mie.", "Joi.", "Vin.", "Sâm.", "Dum.")
+        val daysOfWeek = listOf("Lun.", "Mar.", "Mie.", "Joi.", "Vin.")
 
-        for (i in 0..6) {
+        for (i in 0..4) {
             val day = weekStart.clone() as Calendar
             day.add(Calendar.DAY_OF_MONTH, i)
 
@@ -146,7 +165,6 @@ class ScheduleActivity : AppCompatActivity() {
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
 
                 setTextColor(ContextCompat.getColor(this@ScheduleActivity, android.R.color.black))
-
                 if (isPastDay) {
                     setTextColor(ContextCompat.getColor(this@ScheduleActivity, android.R.color.darker_gray))
                     isClickable = false
@@ -173,7 +191,7 @@ class ScheduleActivity : AppCompatActivity() {
         val currentDay = Calendar.getInstance()
         val today = getFormattedDate(currentDay)
 
-        for (i in 0..6) {
+        for (i in 0..4) {
             val day = weekStart.clone() as Calendar
             day.add(Calendar.DAY_OF_MONTH, i)
 
