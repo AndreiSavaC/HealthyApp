@@ -9,18 +9,24 @@ import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.example.androidapp.models.Category
 import com.example.androidapp.models.Symptom
 
+
 class SymptomsActivity : AppCompatActivity() {
+
+    private lateinit var confirmButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_symptoms)
 
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            title = "Pasul 3 din 4"
+            setHomeAsUpIndicator(R.drawable.ic_arrow_back)
         }
 
         val selectedDate = intent.getStringExtra("selectedDate")
@@ -160,11 +166,15 @@ class SymptomsActivity : AppCompatActivity() {
                 Symptom("Probleme legate de libido")
             ))
         )
-
+        confirmButton = findViewById(R.id.confirmButton)
 
         val layout = findViewById<LinearLayout>(R.id.categoriesLayout)
 
         val inflater = LayoutInflater.from(this)
+
+        val colorStateList = resources.getColorStateList(R.color.checkbox_color, theme)
+
+        var isAnySymptomSelected = false
 
         categories.forEach { category ->
             val categoryView = inflater.inflate(R.layout.item_category, layout, false)
@@ -176,8 +186,13 @@ class SymptomsActivity : AppCompatActivity() {
             category.symptoms.forEach { symptom ->
                 val symptomCheckBox = CheckBox(this)
                 symptomCheckBox.text = symptom.name
+                symptomCheckBox.buttonTintList = colorStateList
                 symptomCheckBox.setOnCheckedChangeListener { _, isChecked ->
                     symptom.isSelected = isChecked
+                    isAnySymptomSelected = categories.any { category ->
+                        category.symptoms.any { it.isSelected }
+                    }
+                    updateConfirmButtonState(isAnySymptomSelected)
                 }
                 symptomLayout.addView(symptomCheckBox)
             }
@@ -204,19 +219,26 @@ class SymptomsActivity : AppCompatActivity() {
 
             val intent = Intent(this, ConfirmAppointmentActivity::class.java)
             intent.putStringArrayListExtra("selectedSymptoms", ArrayList(selectedSymptoms))
-
-
             intent.putExtra("selectedDate", selectedDate)
             intent.putExtra("selectedHour", selectedHour)
-
             startActivity(intent)
+        }
+    }
+
+    private fun updateConfirmButtonState(isAnySymptomSelected: Boolean) {
+        if (isAnySymptomSelected) {
+            confirmButton.isEnabled = true
+            confirmButton.backgroundTintList = resources.getColorStateList(R.color.primaryColor, theme)
+        } else {
+            confirmButton.isEnabled = false
+            confirmButton.backgroundTintList = resources.getColorStateList(R.color.gray_200, theme)
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                finish()
+                onBackPressedDispatcher.onBackPressed()
                 true
             }
             else -> super.onOptionsItemSelected(item)

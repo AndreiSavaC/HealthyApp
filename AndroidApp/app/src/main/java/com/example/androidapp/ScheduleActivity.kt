@@ -32,6 +32,11 @@ class ScheduleActivity : AppCompatActivity() {
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+        }
+
 
         if (supportActionBar != null) {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -150,7 +155,7 @@ class ScheduleActivity : AppCompatActivity() {
 
     private fun updateWeekDays() {
         weekCalendar.removeAllViews()
-        val daysOfWeek = listOf("Lun.", "Mar.", "Mie.", "Joi.", "Vin.")
+        val daysOfWeek = listOf("Lun.", "Mar.", "Mie.", "Joi.", "Vin.",)
 
         for (i in 0..4) {
             val day = weekStart.clone() as Calendar
@@ -189,6 +194,23 @@ class ScheduleActivity : AppCompatActivity() {
 
     private fun selectCurrentDayAndFetchAppointments() {
         val currentDay = Calendar.getInstance()
+
+        if (currentDay.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY ||
+            currentDay.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            currentDay.add(Calendar.DAY_OF_MONTH, if (currentDay.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) 2 else 1)
+            weekStart = currentDay.clone() as Calendar
+            weekStart.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+            updateWeekDisplay()
+
+            selectedDate = currentDay
+            updateAvailableHoursText(selectedDate)
+            fetchAppointmentsForSelectedDate(getFormattedDate(currentDay))
+
+            val mondayView = weekCalendar.getChildAt(0)
+            mondayView?.setBackgroundResource(R.drawable.day_selector)
+            return
+        }
+
         val today = getFormattedDate(currentDay)
 
         for (i in 0..4) {
@@ -207,6 +229,7 @@ class ScheduleActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun isSameDay(day1: Calendar, day2: Calendar): Boolean {
         return day1.get(Calendar.YEAR) == day2.get(Calendar.YEAR) &&
